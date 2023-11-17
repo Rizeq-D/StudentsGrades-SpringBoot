@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = MvcTestingExampleApplication.class)
 public class ApplicationExampleTest {
@@ -32,6 +32,8 @@ public class ApplicationExampleTest {
     CollegeStudent student;
     @Autowired
     StudentGrades studentGrades;
+    @Autowired
+    ApplicationContext context;
 
     @BeforeEach
     public void beforeEach() {
@@ -45,20 +47,47 @@ public class ApplicationExampleTest {
         studentGrades.setMathGradeResults(new ArrayList<>(Arrays.asList(100.0, 80.0, 70.0, 90.50)));
         student.setStudentGrades(studentGrades);
     }
-
     @Test
     @DisplayName("Add grades results for student grades")
     void addGradesResultsForStudentGrades() {
         assertEquals(340.50, studentGrades.addGradeResultsForSingleClass(
                 student.getStudentGrades().getMathGradeResults()));
     }
-
     @Test
     @DisplayName("Add grades results for student grades not equal")
     void addGradesResultsForStudentGradesAssertNotEquals() {
         assertNotEquals(0, studentGrades.addGradeResultsForSingleClass(
                 student.getStudentGrades().getMathGradeResults()));
-
+    }
+    @Test
+    @DisplayName("Is grade greater")
+    void IsGradeGreaterStudentGrades() {
+        assertTrue(studentGrades.isGradeGreater(100.0, 80.0),
+                "failure - should be true");
+    }
+    @Test
+    @DisplayName("Is grade greater is false")
+    void IsGradeGreaterStudentGradesAssertFalse() {
+        assertFalse(studentGrades.isGradeGreater(70.0, 90.50),
+                "failure - should be false");
+    }
+    @Test
+    @DisplayName("Check null for students grades")
+    void CheckNullForStudentGrades() {
+        assertNotNull(studentGrades.checkNull(student.getStudentGrades().getMathGradeResults()),
+                "Object should not be null");
+    }
+    @Test
+    @DisplayName("Create student without grade init")
+    void CreateStudentWithoutGradeInit() {
+        CollegeStudent student2 = context.getBean("collegeStudent", CollegeStudent.class);
+        student2.setFirstname("Mohammed");
+        student2.setLastname("Hamoudeh");
+        student2.setEmailAddress("mo@hs.com");
+        assertNotNull(student2.getFirstname());
+        assertNotNull(student2.getLastname());
+        assertNotNull(student2.getEmailAddress());
+        assertNull(studentGrades.checkNull(student2.getStudentGrades()));
     }
 
 }
